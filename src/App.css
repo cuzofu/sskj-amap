@@ -5,11 +5,27 @@
 
 .App-header {
     background-color: #222;
-    padding: 20px;
     color: white;
+    height: 88px;
 }
 
-.amap {
+.App-title {
+    margin: auto 0px;
+    height: 88px;
+    line-height: 88px;
+}
+
+.amap-container-div {
+    position: absolute;
+    top: 0px;
+    bottom: 0px;
     margin: 0px auto;
-    padding: 0px 20px;
+    padding: 0px;
+    width: 100%;
+    height: 100%;
+}
+
+.my-amap {
+    width: 100%;
+    height: 100%;
 }
