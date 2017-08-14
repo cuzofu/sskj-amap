@@ -17,3 +17,44 @@
     border: 1px solid #d3d3d3;
     background-color: #f9f9f9
 }
+
+/*左上角button样式*/
+.custom-layer-button-lb {
+    position: absolute;
+    bottom: 25px;
+    left: 10px;
+    padding: 5px 10px;
+    border: 1px solid #d3d3d3;
+    background-color: #f9f9f9
+}
+
+.green-marker-out {
+    padding: 8px;
+    background-color: #FF0000;
+    opacity: 1;
+    width:6px;
+    height:6px;
+    border-radius:3px;
+    border:solid #FF0000 1px;
+}
+
+.green-marker-in {
+    padding: 8px;
+    background-color: #FF0000;
+    opacity: 1;
+    width:20px;
+    height:20px;
+    border-radius:10px;
+    border:solid #FF0000 1px;
+}
+
+.my-second-marker-mouse-over {
+    padding: 8px;
+    background-color: #fff;
+    color: #000;
+    border: 1px solid #000
+}
+
+.marker-style-red {
+
+}
