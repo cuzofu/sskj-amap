@@ -1,22 +1,37 @@
 import React from 'react';
-import {Map, Markers} from 'react-amap';
+import {Map, Marker, InfoWindow} from 'react-amap';
+
 
 import MyTabs from './MyTabs';
+import Counter from './const/Counter';
+import icon1 from './icon/1.png';
+import icon2 from './icon/2.png';
 
 require('./MyMap.css');
-
-const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
 
 class MyMap extends React.Component {
     constructor(){
         super();
         this.state = {
             center: null,
-            markers: null,
-            defaultActiveKey: 'first',
+            markers: [],
+            curMarkers: [],
+            defaultActiveKey: 'YJ',
             markerEvents: {},
             renderLayout: null,
-            infoWindowVisible: false
+            infoWindow: {
+                visible: false,
+                position: {
+                    longitude: 0,
+                    latitude: 0
+                },
+                size: {
+                    width: 200,
+                    height: 140
+                },
+                offset: [0, 0]
+            }
+
         };
         this.mapEvents = {
             created: (map) => {
@@ -25,12 +40,41 @@ class MyMap extends React.Component {
             },
             moveend: () => { this.showCenter() }
         };
+        this.markerEvents = {
+            click: (e, marker) => {this.markerClick(marker.getExtData())}
+        };
+        this.windowEvents = {
+            created: (iw) => {console.log(iw)},
+            open: () => {console.log('InfoWindow opened')},
+            close: () => {console.log('InfoWindow closed')},
+            change: () => {console.log('InfoWindow prop changed')},
+        };
         this.mapPlugins = ['ToolBar'];
         this.onSelect = this.onSelect.bind(this);
     }
 
     componentWillMount() {
-        this.onSelect(this.state.defaultActiveKey);
+        let markersYj = this.randomMarker(2, 'YJ');
+        let markersZj = this.randomMarker(3, 'ZJ');
+        let markersJg = this.randomMarker(4, 'JG');
+        let markers = [];
+        markers.push(...markersYj);
+        markers.push(...markersZj);
+        markers.push(...markersJg);
+        let position = markers[0].position;
+        this.setState({
+            markers: markers,
+            curMarkers: markersYj,
+            infoWindow: {
+                visible: false,
+                position: position,
+                size: {
+                    width: 200,
+                    height: 140
+                },
+                offset: [0, 0]
+            }
+        });
     }
 
     showCenter(){
@@ -39,69 +83,79 @@ class MyMap extends React.Component {
         });
     }
 
-    onSelect(props) {
-        let markers = {};
-        let markerEvents = {};
-        let renderLayout = {};
-        if (props === 'first') {
-            markers = this.randomMarker(10);
-        } else if (props === 'second') {
-            markers = this.randomMarker(20);
-            markerEvents = {
-                mouseover:(e, marker) => {
-                    // marker.render(this.secondMarkerMouseOverLayout);
-                },
-                mouseout: (e, marker) => {
-                    // marker.render(this.secondMarkerLayout);
-                },
-                click: (e, marker) => {
-                    console.log(e);
-                }
-            };
-            renderLayout = this.secondMarkerLayout;
-        } else if (props === 'third') {
-            markers = this.randomMarker(30);
+    markerClick(extData) {
+        let curMarkers = this.state.curMarkers;
+        let marker = curMarkers.find((marker) => marker.myKey === extData.markerId);
+        const draggable = marker.draggable;
+        marker.draggable = !draggable;
+
+        const showInfo = extData.showInfo;
+        marker.extData.showInfo = !showInfo;
+        if (showInfo) {
+            marker.extData.popInfo = null;
         } else {
-            markers = this.randomMarker(10);
+            marker.extData.popInfo = <div>哈哈</div>;
         }
+
         this.setState({
-            markers: markers,
-            markerEvents: markerEvents,
-            renderLayout: renderLayout
+            curMarkers: curMarkers,
+            infoWindow: {
+                visible: !this.state.infoWindow.visible,
+                position: marker.position,
+                size: {
+                    width: 200,
+                    height: 140
+                },
+                offset: [0, -24]
+            }
         });
     }
 
-    randomMarker(len){
-        return Array(len).fill(true).map((e, idx) => ({
-            position: {
-                longitude: 111 + Math.random() * 10,
-                latitude: 30 + Math.random() * 10,
-            },
-            myLabel: alphabet[idx],
-            myIndex: idx + 1,
-            myContent: '我是'+idx,
-            label: {
-                content: '我是'+alphabet[idx],
-                offset: {
-                    x:-9,
-                    y:-31
+    onSelect(props) {
+        let markers = [];
+        let markerEvents = {};
+        // let renderLayout = {};
+        let _markers = this.state.markers;
+        markers = _markers.filter((marker) => marker.myType === props);
+
+        this.setState({
+            curMarkers: markers,
+            defaultActiveKey: props,
+            markerEvents: markerEvents
+        });
+    }
+
+    randomMarker(len, type){
+        let icon = null;
+        if (type === 'YJ') {
+            icon = icon1;
+        } else if (type === 'ZJ') {
+            icon = icon2;
+        } else if (type === 'JG') {
+            icon = icon1;
+        } else {
+            icon = icon2;
+        }
+        return Array(len).fill(true).map((e, idx) => {
+            let id = Counter.increment();
+            return {
+                position: {
+                    longitude: 111 + Math.random() * 10,
+                    latitude: 30 + Math.random() * 10,
+                },
+                myType: type,
+                myKey: id,
+                icon: icon,
+                draggable: true,
+                title: id,
+                topWhenClick: true,
+                extData: {
+                    markerId: id,
+                    showInfo: false,
+                    popInfo: null
                 }
             }
-        }))
-    }
-
-    secondMarkerMouseOverLayout(extData){
-        return <div className="my-second-marker-mouse-over">{extData.myLabel}</div>
-    }
-
-    secondMarkerLayout(extData){
-        return(
-            <div className="green-marker-out">
-                <div className="green-marker-in">
-                    {extData.myLabel}
-                </div>
-            </div>
-        );
+        })
     }
 
     toggleVisible() {
@@ -119,19 +173,31 @@ class MyMap extends React.Component {
                 amapkey="1dd08ec0fffc99b1d5cd5cfa0224a924"
                 zoom={5}
             >
-                <Markers
-                    markers={this.state.markers}
-                    render={this.state.renderLayout}
-                    events={this.state.markerEvents}
+                <InfoWindow
+                    isCustom={false}
+                    content='<div><h3>Window 2</h3><p>This is a window</p></div>'
+                    events={this.windowEvents}
+                    visible={this.state.infoWindow.visible}
+                    position={this.state.infoWindow.position}
+                    size={this.state.infoWindow.size}
+                    offset={this.state.infoWindow.offset}
                 />
+                {
+                    this.state.curMarkers.map((marker) => {
+                        return (
+                            <Marker
+                                events={this.markerEvents}
+                                key={marker.myKey}
+                                markerId={marker.myKey}
+                                {...marker} />
+                        );
+                    })
+                }
 
-                <div className="custom-layer-button-lt">
-                    <MyTabs onSelect={this.onSelect} defaultActiveKey={this.state.defaultActiveKey} />
-                </div>
-                <div className="custom-layer-button-lb">
-                    <h4>A Custom Layer</h4>
-                    <p>Current Center Is: {this.state.center}</p>
-                </div>
+                <MyTabs
+                    onSelect={this.onSelect}
+                    defaultActiveKey={this.state.defaultActiveKey}
+                />
             </Map>
         );
     }

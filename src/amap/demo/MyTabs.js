@@ -1,5 +1,6 @@
 import { Tabs } from 'antd';
 import * as React from "react";
+
 import 'antd/dist/antd.css';
 const TabPane = Tabs.TabPane;
 
@@ -7,6 +8,7 @@ export default class MyTabs extends React.Component {
 
     constructor(props) {
         super(props);
+        this.map = props.__map__;
         this.state = {
             curActiveKey: null,
         };
@@ -20,19 +22,24 @@ export default class MyTabs extends React.Component {
     }
 
     handleClick(key) {
-        this.setState({
-            curActiveKey: key
-        });
+        this.map.clearMap();
         this.props.onSelect(key);
     }
 
     render() {
         return (
-            <Tabs activeKey={this.state.curActiveKey} onChange={this.handleClick}>
-                <TabPane tab="Marker 1" key="first"></TabPane>
-                <TabPane tab="Marker 2" key="second"></TabPane>
-                <TabPane tab="Marker 3" key="third"></TabPane>
-            </Tabs>
+
+            <div className="custom-layer-button-lt">
+                <Tabs
+                    activeKey={this.props.defaultActiveKey}
+                    onChange={this.handleClick}
+                >
+                    <TabPane tab="预警项目" key="YJ"></TabPane>
+                    <TabPane tab="在建项目" key="ZJ"></TabPane>
+                    <TabPane tab="竣工项目" key="JG"></TabPane>
+                </Tabs>
+            </div>
+
         );
     }
 }
