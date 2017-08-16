@@ -55,6 +55,38 @@
     border: 1px solid #000
 }
 
-.red-marker {
+.marker-01 {
+    background-size: contain;
+    background: image('./icon/1.png') no-repeat center;
+    width: 30px;
+    height: 40px;
+    color: #000;
+    text-align: center;
+    line-height: 40px
+}
 
+.marker-02 {
+    background-size: contain;
+    background: image('./icon/2.png') no-repeat center;
+    width: 30px;
+    height: 40px;
+    color: #000;
+    text-align: center;
+    line-height: 40px
+}
+
+.marker-03 {
+    background-size: contain;
+    background: image('./icon/3.png') no-repeat center;
+    width: 30px;
+    height: 40px;
+    color: #FF0000;
+    text-align: center;
+    line-height: 40px
+}
+
+.marker {
+    background: #000;
+    color: #fff;
+    padding: 5px
 }
