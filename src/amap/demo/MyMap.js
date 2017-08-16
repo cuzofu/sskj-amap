@@ -6,7 +6,7 @@ import MyTabs from './MyTabs';
 import Counter from './const/Counter';
 import icon1 from './icon/1.png';
 import icon2 from './icon/2.png';
-import icon3 from './icon/3.png';
+import icon3 from './icon/4.png';
 
 require('./MyMap.css');
 
@@ -63,7 +63,7 @@ class MyMap extends React.Component {
     componentWillMount() {
         let markersYj = this.randomMarker(10, 'YJ');
         let markersZj = this.randomMarker(5, 'ZJ');
-        let markersJg = this.randomMarker(0, 'JG');
+        let markersJg = this.randomMarker(6, 'JG');
         let markers = [];
         markers.push(...markersYj);
         markers.push(...markersZj);
@@ -78,7 +78,7 @@ class MyMap extends React.Component {
                 position: marker.position,
                 size: {
                     width: 200,
-                    height: 140
+                    height: 100
                 },
                 offset: [0, -24]
             },
