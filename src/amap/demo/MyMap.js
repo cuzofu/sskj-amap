@@ -1,25 +1,31 @@
 import React from 'react';
 import {Map, Marker, InfoWindow} from 'react-amap';
-import {Button} from 'antd';
+import {notification} from 'antd';
 
-import MyTabs from './MyTabs';
+import MyTabs from './CustomLayers';
 import Counter from './const/Counter';
 import icon1 from './icon/1.png';
 import icon2 from './icon/2.png';
-import icon3 from './icon/4.png';
+import icon3 from './icon/3.png';
 
 require('./MyMap.css');
 
 const defaultCenter = {
-    longitude: 111.286666,
-    latitude: 30.69215
+    longitude: 111.286445,
+    latitude: 30.691865
+};
+
+const openNotification = (props) => {
+    notification.open(props);
 };
 
 class MyMap extends React.Component {
     constructor(){
         super();
         this.state = {
+            map: null,
             center: defaultCenter,
+            zoom: 10,
             markers: [],
             curMarkers: [],
             curMarker: {},
@@ -39,25 +45,18 @@ class MyMap extends React.Component {
             },
             timeout: true
         };
-        this.mapEvents = {
-            created: (map) => {
-                this.mapInstance = map;
-            },
-        };
         this.markerEvents = {
             click: (e, marker) => {this.markerClick(marker)}
         };
         this.windowEvents = {
-            created: (iw) => {return},
-            open: () => {return},
             close: () => {this.closeInfoWindow()},
-            change: () => {return},
         };
         this.mapPlugins = ['ToolBar'];
         this.onSelect = this.onSelect.bind(this);
         this.autoClickMarker = this.autoClickMarker.bind(this);
         this.time = this.time.bind(this);
         this.setTimeout = this.setTimeout.bind(this);
+        this.setCity = this.setCity.bind(this);
     }
 
     componentWillMount() {
@@ -74,7 +73,7 @@ class MyMap extends React.Component {
             curMarkers: markersYj,
             curMarker: marker,
             infoWindow: {
-                visible: true,
+                visible: false,
                 position: marker.position,
                 size: {
                     width: 200,
@@ -106,8 +105,18 @@ class MyMap extends React.Component {
             _curMarker = _clickMarker;
         }
 
+        const args = {
+            message: 'Notification Title ' + _curMarker.myKey,
+            description: 'I will never close automatically. I will be close automatically. I will never close automatically.',
+            duration: 3,
+        };
+
+        openNotification(args);
+
         this.setState({
             curMarker: _curMarker,
+            zoom: 10,
+            timeout: true,
             infoWindow: _infoWindow,
             center: _curMarker ? _curMarker.position : defaultCenter
         });
@@ -119,14 +128,11 @@ class MyMap extends React.Component {
 
         let _infoWindow = this.state.infoWindow;
 
-        if (props === 'YJ') {
-            _infoWindow.visible = true;
-        } else {
-            _infoWindow.visible = false;
-        }
+        _infoWindow.visible = props === 'YJ';
         _infoWindow.position = _marker ? _marker.position : defaultCenter;
 
         this.setState({
+            zoom: 10,
             curMarkers: _markers,
             curMarker: _marker,
             timeout: true,
@@ -147,12 +153,12 @@ class MyMap extends React.Component {
         } else {
             icon = icon3;
         }
-        return Array(len).fill(true).map((e, idx) => {
+        return new Array(len).fill(true).map(() => {
             const id = Counter.increment();
             return {
                 position: {
-                    longitude: 111 + Math.random() * 10,
-                    latitude: 30 + Math.random() * 10,
+                    longitude: 111 + Math.random(),
+                    latitude: 30 + Math.random(),
                 },
                 myType: type,
                 myKey: id,
@@ -183,10 +189,12 @@ class MyMap extends React.Component {
             return;
         }
         this.autoClickMarker();
-        setTimeout(this.time, 10000)
+        setTimeout(this.time, 3000)
     }
 
     setTimeout() {
+
+        console.log(this.state);
         let _infoWindow = this.state.infoWindow;
         _infoWindow.visible = false;
         this.setState(
@@ -198,6 +206,17 @@ class MyMap extends React.Component {
                 this.time();
             }
         );
+    }
+
+    setCity(map) {
+
+        console.log(map);
+
+        map.setCity('宜都市');
+        // console.log(map.setCenter(new window.AMap.LngLat(111.286445,30.691865)));
+        console.log(map.getCenter());
+        console.log(map.getCity(()=>{console.log(111)}));
+
     }
 
     autoClickMarker() {
@@ -226,7 +245,16 @@ class MyMap extends React.Component {
             _curMarker = _clickMarker;
         }
 
+        const args = {
+            message: 'Notification Title ' + _curMarker.myKey,
+            description: 'I will never close automatically. I will be close automatically. I will never close automatically.',
+            duration: 3,
+        };
+
+        openNotification(args);
+
         this.setState({
+            zoom: 10,
             curMarker: _curMarker,
             infoWindow: _infoWindow,
             center: _curMarker ? _curMarker.position : defaultCenter
@@ -241,6 +269,7 @@ class MyMap extends React.Component {
                 <div>
                     <h3>{props.title}</h3>
                     <p>{props.message}</p>
+                    <p>longitude: {props.position.longitude} / latitude: {props.position.latitude}</p>
                 </div>
             );
         };
@@ -248,9 +277,8 @@ class MyMap extends React.Component {
         return (
             <Map
                 plugins={this.mapPlugins}
-                events={this.mapEvents}
                 amapkey="1dd08ec0fffc99b1d5cd5cfa0224a924"
-                zoom={6}
+                zoom={this.state.zoom}
                 center={this.state.center}
             >
                 <InfoWindow
@@ -262,7 +290,8 @@ class MyMap extends React.Component {
                         this.state.curMarker ? infoWindow({
                             pic: '',
                             title: 'Title ' + this.state.curMarker.myKey,
-                            message: 'message'
+                            message: 'message',
+                            position: this.state.curMarker.position
                         }) : null
                     }
                 </InfoWindow>
@@ -282,11 +311,9 @@ class MyMap extends React.Component {
                 <MyTabs
                     onSelect={this.onSelect}
                     defaultActiveKey={this.state.defaultActiveKey}
+                    setCity={this.setCity}
+                    timeout={this.state.timeout}
                 />
-
-                <div className="custom-layer-button-lb">
-                    <Button type="primary" onClick={this.setTimeout}>{this.state.timeout ? "开始" : "结束"}</Button>
-                </div>
 
             </Map>
         );
